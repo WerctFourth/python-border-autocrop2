@@ -6,12 +6,12 @@ More information is available in [previous version's readme](https://github.com/
 
 # Differences
 
-* Uses pyvips/libvips instead of Pillow for 16-bit per band and more format support
-* Resizes images using Magic Kernel Sharp (a=6, v=7) internally with Numba acceleration
-* Saves 16-bit/band images after resizing (8-bit input images wihtout resizing will be saved as 8-bit)
+* Uses pyvips/libvips instead of Pillow for 16-bit/band and more format support
+* Resizes images using Magic Kernel Sharp (a=6, v=7), Numpy + Numba resizer implementation
+* Saves 16-bit/band images after resizing (8-bit input images without resizing will be saved as 8-bit)
 * Settings are saved in JSON with an ability to load custom settings files
 * Can save and load job JSONs with custom settings for any file
-* Saves to PNG (up to 16 bit), JXL (internal libvips, up to 16 bit), AVIF (still external, because interal ilbvips encoder doesn't support 8+ bit images)
+* Saves to PNG (up to 16 bit), JXL (internal libvips, up to 16 bit), AVIF (still external, because internal ilbvips encoder doesn't support 8+ bit images; up to 12 bit)
 * Option to ignore already vertically cropped space in horizontal crop
 
 # Requirements
