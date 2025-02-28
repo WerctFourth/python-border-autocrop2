@@ -15,8 +15,14 @@ More information is available in [previous version's readme](https://github.com/
 * Option to ignore already vertically cropped space in horizontal crop
 
 # Requirements
-Python, pyvips, numpy, numba. 
+Python, [pyvips](https://pypi.org/project/pyvips/), [numpy](https://pypi.org/project/numpy/), [numba](https://pypi.org/project/numba/). 
 
 Tested on Python 3.13.1, pyvips 2.2.3, Numpy 2.1.3, Numba 0.61.0.
 
-Requires external native libvips library.
+Requires external native [libvips library](https://github.com/libvips/libvips/releases).
+
+# Resources
+
+* [Magic Kernel official site](https://johncostella.com/magic/)
+* [Magic Kernel Rust implementation](https://lib.rs/crates/magic-kernel)
+* [pica JS resizer](https://github.com/nodeca/pica)
