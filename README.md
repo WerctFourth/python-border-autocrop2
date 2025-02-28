@@ -1,0 +1,22 @@
+# Description
+
+Python script for cropping clear borders of any color in images with some degree of noise tolerance.
+
+More information is available in [previous version's readme](https://github.com/WerctFourth/python-border-autocrop)
+
+# Differences
+
+* Uses pyvips/libvips instead of Pillow for 16-bit per band and more format support
+* Resizes images using Magic Kernel Sharp (a=6, v=7) internally with Numba acceleration
+* Saves 16-bit/band images after resizing (8-bit input images wihtout resizing will be saved as 8-bit)
+* Settings are saved in JSON with an ability to load custom settings files
+* Can save and load job JSONs with custom settings for any file
+* Saves to PNG (up to 16 bit), JXL (internal libvips, up to 16 bit), AVIF (still external, because interal ilbvips encoder doesn't support 8+ bit images)
+* Option to ignore already vertically cropped space in horizontal crop
+
+# Requirements
+Python, pyvips, numpy, numba. 
+
+Tested on Python 3.13.1, pyvips 2.2.3, Numpy 2.1.3, Numba 0.61.0.
+
+Requires external native libvips library.
