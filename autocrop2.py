@@ -190,9 +190,10 @@ def mk67Helper(x: float) -> float:
     
     return -(x**5) / 120 + x**4 / 8 - 3 * x**3 / 4 + 9 * x**2 / 4 - 27 * x / 8 + 81 / 40
 
-def getResampleSize(imgSize: tuple[int, int], argParams: dict) -> tuple[int, int]:
+@numba.njit
+def getResampleSize(imgSize: tuple[int, int], argVTarget: int, argHTarget: int) -> tuple[int, int]:
     x, y = imgSize
-    internalTarget = argParams["verticalResizeTarget"] if x < y else argParams["horizontalResizeTarget"]
+    internalTarget = argVTarget if x < y else argHTarget
 
     if x > internalTarget:
         tmpRatio = internalTarget / x
@@ -314,7 +315,7 @@ def workerEntryPoint(argParams: dict):
 
     if argParams["doResize"]:
         oldSize = (imArray.shape[1], imArray.shape[0])
-        newSize = getResampleSize(oldSize, argParams)
+        newSize = getResampleSize(oldSize, argParams["verticalResizeTarget"], argParams["horizontalResizeTarget"])
         if oldSize == newSize:
             imResizeImg = pyvips.Image.new_from_array(imArray, interpretation="auto")
             debugMessagesList.append(f"Image is too small to resize ({oldSize[0]}x{oldSize[1]})")
