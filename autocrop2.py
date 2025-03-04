@@ -201,9 +201,22 @@ def getResampleSize(imgSize: tuple[int, int], argVTarget: int, argHTarget: int) 
         return internalTarget, newY
     return x, y
 
+@numba.njit
+def getColorBounds(argInputColor: int, argDistance: int) -> tuple[int, int]:
+    leftBias, rightBias = 0, 0
+    singleSideDistance = round(argDistance / 2)
+    if argInputColor - singleSideDistance < 0:
+        rightBias = abs(argInputColor - singleSideDistance)
+    if argInputColor + singleSideDistance > 255:
+        leftBias = abs(argInputColor + singleSideDistance - 255)
+    leftBound = max(0, argInputColor - singleSideDistance - leftBias) 
+    rightBound = min(255, argInputColor + singleSideDistance + rightBias)
+    return leftBound, rightBound
+
 def cropUnif(argImageArray: numpy.ndarray, argParams: dict, argVertical: bool, argExhaustive: bool, argReverse: bool):
     emptyLinesList = list()
     fuzzyDistance = argParams["fuzzyDistance"]
+    lineErrorThreshold = argParams["lineErrorThreshold"]
 
     internalAxis1, internalAxis2 = int(not argVertical), int(argVertical)    
 
@@ -223,9 +236,10 @@ def cropUnif(argImageArray: numpy.ndarray, argParams: dict, argVertical: bool, a
         else:
             vals, freq = numpy.unique(argImageArray[:, coord], return_counts=True)
         backColor = numpy.int64(vals[numpy.argmax(freq)])
-        newFuzzyCount = numpy.sum(numpy.take(freq, numpy.where(numpy.logical_and(vals > (backColor - fuzzyDistance), vals < (backColor + fuzzyDistance)))))
+        leftBound, rightBound = getColorBounds(backColor, fuzzyDistance)
+        newFuzzyCount = numpy.sum(numpy.take(freq, numpy.where(numpy.logical_and(vals >= leftBound, vals <= rightBound))))
         lineFuzzyError = round((1 - newFuzzyCount / internalSize2) * 100, 4)
-        if lineFuzzyError < argParams["lineErrorThreshold"]:
+        if lineFuzzyError < lineErrorThreshold:
             emptyLinesList.append(coord)
         else:
             if not argExhaustive:
