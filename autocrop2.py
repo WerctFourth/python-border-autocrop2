@@ -136,43 +136,39 @@ def lanc3Value(x: float) -> float:
 
 @numba.njit
 def mkValue67(x: float) -> float:
-    a = 6
-    v = 7
-    support_internal = 0.5 * a + v
-    if x < -support_internal or x >= support_internal:
+    if x < -10 or x >= 10:
         return 0
+    
     internalSum = 0.0
-    for s in range(-v, v + 1):
+    for s in range(-7, 8):
         internalSum += mkSharp67Helper(s) * mk67Helper(x + s)
     return internalSum
 
 @numba.njit
-def mkSharp67Helper(offset) -> float:
-    rel = abs(offset)
-    if rel == 0:
-        return 8415120629.0 / 2952708336
-    elif rel == 1:
-        return -3913360945.0 / 2952708336
-    elif rel == 2:
-        return 20369223277.0 / 35432500032
-    elif rel == 3:
-        return -4387620835.0 / 17716250016
-    elif rel == 4:
-        return 1887357215.0 / 17716250016
-    elif rel == 5:
-        return -808049411.0 / 17716250016
-    elif rel == 6:
-        return 674477135.0 / 35432500032
-    elif rel == 7:
-        return -3769012.0 / 553632813
-    return 0
+def mkSharp67Helper(offset: int) -> float:
+    match abs(offset):
+        case 0:
+            return 8415120629 / 2952708336
+        case 1:
+            return -3913360945 / 2952708336
+        case 2:
+            return 20369223277 / 35432500032
+        case 3:
+            return -4387620835 / 17716250016
+        case 4:
+            return 1887357215 / 17716250016
+        case 5:
+            return -808049411 / 17716250016
+        case 6:
+            return 674477135 / 35432500032
+        case 7:
+            return -3769012 / 553632813
+        case _:
+            return 0
 
 @numba.njit
 def mk67Helper(x: float) -> float:
-    a = 6
-    support_internal = 0.5 * a
-
-    if x < -support_internal or x >= support_internal:
+    if x < -3 or x >= 3:
         return 0
     
     if x <= 0:
