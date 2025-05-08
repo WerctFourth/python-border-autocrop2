@@ -197,7 +197,6 @@ def getResampleSize(imgSize: tuple[int, int], argVTarget: int, argHTarget: int) 
         return internalTarget, newY
     return x, y
 
-@numba.njit
 def getColorBounds(argInputColor: int, argDistance: int) -> tuple[int, int]:
     leftBias, rightBias = 0, 0
     singleSideDistance = round(argDistance / 2)
