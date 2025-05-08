@@ -24,6 +24,20 @@ def getAvifCmdline(inPath: pathlib.Path, outPath: pathlib.Path, argParams: dict)
     tmpList.append(outPath.as_posix())
     return tmpList
 
+def checkColor(argImg, argImgFormat: str, argParams: dict) -> bool:
+    if argImgFormat == "uchar":
+        currentThreshold = round(255 * argParams["colorThresholdPercent"] / 100)
+        imWkArray = argImg.numpy().astype(numpy.int16)
+    else:
+        currentThreshold = round(65535 * argParams["colorThresholdPercent"] / 100)
+        imWkArray = argImg.numpy().astype(numpy.int32)
+
+    if numpy.max(numpy.absolute(imWkArray[:, :, 0] - imWkArray[:, :, 1])) > currentThreshold or \
+            numpy.max(numpy.absolute(imWkArray[:, :, 1] - imWkArray[:, :, 2])) > currentThreshold:
+        return True
+    else:
+        return False
+
 def getResultFilePath(argExtension: str, argParams: dict) -> pathlib.Path:
     sourceFilePath = pathlib.Path(argParams["imageFilePath"])
     resultFolderPath = pathlib.Path(argParams["resultFolderPath"])
@@ -257,16 +271,29 @@ def workerEntryPoint(argParams: dict):
     imWidth = im.get("width")
     imHeight = im.get("height")
     imBands = im.get("bands")
-    imFormat = im.get("format")
-    imPixelSize = im.get("interpretation")
+    imPixelSize = im.get("format")
+    imColorFormat = im.get("interpretation")
     imHasAlpha = bool(im.hasalpha())
     debugMessagesList.append(f"Loaded {argParams["imageFilePath"]}")
-    debugMessagesList.append(f"Size: {imWidth}x{imHeight}, Bands: {imBands}, Pixel size: {imFormat}, Image type: {imPixelSize}")
+    debugMessagesList.append(f"Size: {imWidth}x{imHeight}, Bands: {imBands}, Pixel size: {imPixelSize}, Image type: {imColorFormat}")
 
     if imHasAlpha: #yank alpha with all the force needed
         im = im[:-1]
         imBands -= 1
         debugMessagesList.append("Alpha channel removed.")
+
+    if imBands == 1:
+        imColor = False
+    else:
+        imColor = checkColor(im, imPixelSize, argParams)
+        if not imColor:
+            imBands = 1
+            debugMessagesList.append("Grayscale-in-RGB image detected, converting to grayscale.")
+            if imPixelSize == "uchar":
+                im = im.colourspace(pyvips.Interpretation.B_W)
+            else:
+                im = im.colourspace(pyvips.Interpretation.GREY16)
+            imColorFormat = im.get("interpretation")
 
     imArray = im.numpy()
 
@@ -332,14 +359,14 @@ def workerEntryPoint(argParams: dict):
             gammaCompensation = argParams["gammaCompensation"]
             match argParams["resizeMode"]:
                 case 1:
-                    imResizeArray = resampleImage(imArray, oldSize, newSize, imBands, imFormat, mkValue67, 10, gammaCompensation)
+                    imResizeArray = resampleImage(imArray, oldSize, newSize, imBands, imPixelSize, mkValue67, 10, gammaCompensation)
                     imResizeImg = pyvips.Image.new_from_array(imResizeArray, interpretation="auto")
                 case 2:
-                    imResizeArray = resampleImage(imArray, oldSize, newSize, imBands, imFormat, lanc3Value, 3, gammaCompensation)
+                    imResizeArray = resampleImage(imArray, oldSize, newSize, imBands, imPixelSize, lanc3Value, 3, gammaCompensation)
                     imResizeImg = pyvips.Image.new_from_array(imResizeArray, interpretation="auto")
                 case _:
                     resizeRatio = newSize[0] / oldSize[0]
-                    match imPixelSize:
+                    match imColorFormat:
                         case "b-w":
                             imResizeImg = pyvips.Image.new_from_array(imArray, interpretation="auto").colourspace("gray16") \
                                 .resize(resizeRatio, kernel=pyvips.Kernel.LANCZOS3)
