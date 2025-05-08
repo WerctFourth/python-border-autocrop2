@@ -8,6 +8,7 @@ More information is available in [previous version's readme](https://github.com/
 
 * Uses pyvips/libvips instead of Pillow for 16-bit/band and more format support
 * Resizes images using Magic Kernel Sharp (a=6, v=7), Numpy + Numba resizer implementation
+* Detects grayscale images saved as RGB and converts them back to grayscale (pyvips + numpy implementation)
 * Saves 16-bit/band images after resizing (8-bit input images without resizing will be saved as 8-bit)
 * Settings are saved in JSON with an ability to load custom settings files
 * Can save and load job JSONs with custom settings for any file
@@ -17,7 +18,9 @@ More information is available in [previous version's readme](https://github.com/
 # Requirements
 Python, [pyvips](https://pypi.org/project/pyvips/), [numpy](https://pypi.org/project/numpy/), [numba](https://pypi.org/project/numba/). 
 
-Tested on Python 3.13.1, pyvips 2.2.3, Numpy 2.1.3, Numba 0.61.0.
+Optional: [pyvips-binary](https://pypi.org/project/pyvips-binary/) (Makes calls to libvips faster)
+
+Tested on Python 3.13.1, pyvips 3.0.0, pyvips-binary 8.16.1, Numpy 2.2.5, Numba 0.61.2.
 
 Requires external native [libvips library](https://github.com/libvips/libvips/releases).
 
