@@ -222,10 +222,15 @@ def getColorBounds(argInputColor: int, argDistance: int) -> tuple[int, int]:
     rightBound = min(255, argInputColor + singleSideDistance + rightBias)
     return leftBound, rightBound
 
-def cropUnif(argImageArray: numpy.ndarray, argParams: dict, argVertical: bool, argExhaustive: bool, argReverse: bool):
+def cropUnif(argImageArray: numpy.ndarray, argParams: dict, argVertical: bool, argExhaustive: bool, argReverse: bool, argColor: bool):
     emptyLinesList = list()
-    fuzzyDistance = argParams["fuzzyDistance"]
-    lineErrorThreshold = argParams["lineErrorThreshold"]
+
+    if argColor:
+        fuzzyDistance = argParams["colorFuzzyDistance"]
+        lineErrorThreshold = argParams["colorLineThreshold"]
+    else:
+        fuzzyDistance = argParams["monoFuzzyDistance"]
+        lineErrorThreshold = argParams["monoLineThreshold"]    
 
     internalAxis1, internalAxis2 = int(not argVertical), int(argVertical)    
 
@@ -425,8 +430,10 @@ def getDefaultSettings(argKeysOnly: bool = False):
         "vipsLibPath": "./vips",
         "logFilePath": "./autocropLog.txt",
         "doCrop": True,
-        "lineErrorThreshold": 0.4,
-        "fuzzyDistance": 16,
+        "colorLineThreshold": 0.4,
+        "colorFuzzyDistance": 16,
+        "monoLineThreshold": 0.4,
+        "monoFuzzyDistance": 16,
         "enableExhaustive": True,
         "exhaustiveThreshold": 5,
         "excludeVerticalCrop": True,
@@ -594,8 +601,8 @@ def main():
         logging.error("AVIF encoding is enabled and Avifenc is not found. Stopping.")
         exit()     
 
-    logging.info(f"Line threshold: {str(settingsDict["lineErrorThreshold"])}%")
-    logging.info(f"Fuzzy distance: {str(settingsDict["fuzzyDistance"])} colors")
+    logging.info(f"Line threshold: color {str(settingsDict["colorLineThreshold"])}%, mono {str(settingsDict["monoLineThreshold"])}%")
+    logging.info(f"Fuzzy distance: color {str(settingsDict["colorFuzzyDistance"])} colors, mono {str(settingsDict["monoFuzzyDistance"])} colors")
     logging.info(f"Input folder: {inputFolderPath}")
     logging.info(f"Output folder template: {settingsDict["resultFolderTemplate"]}")
 
