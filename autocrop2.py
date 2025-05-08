@@ -278,11 +278,10 @@ def workerEntryPoint(argParams: dict):
     imBands = im.get("bands")
     imPixelSize = im.get("format")
     imColorFormat = im.get("interpretation")
-    imHasAlpha = bool(im.hasalpha())
     debugMessagesList.append(f"Loaded {argParams["imageFilePath"]}")
     debugMessagesList.append(f"Size: {imWidth}x{imHeight}, Bands: {imBands}, Pixel size: {imPixelSize}, Image type: {imColorFormat}")
 
-    if imHasAlpha: #yank alpha with all the force needed
+    if im.hasalpha(): #yank alpha with all the force needed
         im = im[:-1]
         imBands -= 1
         debugMessagesList.append("Alpha channel removed.")
@@ -627,6 +626,7 @@ def main():
     maxFileCount = len(jobList)
     logging.info(f"Converting {maxFileCount} files")
     containsErrorsFlag = False
+
     with multiprocessing.Pool() as wkPool:
         wkResults = wkPool.imap_unordered(workerEntryPoint, jobList)
         for wkFile, wkDebugMessagesList, wkErrorMesssagesList in wkResults:
