@@ -438,7 +438,8 @@ def getDefaultSettings(argKeysOnly: bool = False):
         "doEncodePng": True,
         "doEncodeAvif": False,
         "doEncodeJxl": False,
-        "pngCompressionLevel": 1 }
+        "pngCompressionLevel": 1,
+        "colorThresholdPercent": 7 }
     
     if argKeysOnly:
         return jsonDict.keys()
